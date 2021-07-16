@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Dog Searcher</string>
+    <string name="default_error_message">Something went wrong</string>
+    <string name="no_result_found">No result found</string>
+</resources>
