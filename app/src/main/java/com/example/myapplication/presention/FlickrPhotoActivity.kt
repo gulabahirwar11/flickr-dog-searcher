@@ -68,7 +68,7 @@ class FlickrPhotoActivity : AppCompatActivity() {
         recycler_view.layoutManager = GridLayoutManager(this, columnNumber)
         recycler_view.adapter = flickrAdapter
 
-        flickrViewmodel.getFetchFlickrItems(searchQuery, columnNumber)
+        flickrViewmodel.getFetchFlickrItems(searchQuery, page)
     }
 
     private fun displayData() {
