@@ -1,5 +1,6 @@
 package com.example.myapplication.presention.viewmodel
 
+import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.myapplication.domain.events.Event
@@ -10,11 +11,13 @@ import io.reactivex.disposables.CompositeDisposable
 
 class FlickrViewmodel(private val dataSource: FlickrDataSource) : ViewModel() {
     var totalPages = 0
+    var page = 2  // default 2 page loading
+    var savedRecyclerLayoutState: Parcelable? = null
 
     private val disposables = CompositeDisposable()
     val eventBus = MutableLiveData<Event<EventType, Any>>()
 
-    fun getFetchFlickrItems(searchText: String, page: Int) {
+    fun getFetchFlickrItems(searchText: String) {
         val disposable = dataSource.getFetchFlickrItems(searchText, page)
                 .compose(RxUtil.applySingleSchedulers())
                 .subscribe({

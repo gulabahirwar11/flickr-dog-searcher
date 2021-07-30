@@ -30,12 +30,10 @@ class FlickrPhotoActivity : AppCompatActivity() {
 
     private val flickrAdapter = FlickrRecyclerAdapter()
 
-    private var page = 2  // default 2 page loading
     private val columnNumber = 2
     private var searchQuery = ""
 
     private val LIST_STATE = "list_state"
-    private var savedRecyclerLayoutState: Parcelable? = null
     private val BUNDLE_RECYCLER_LAYOUT = "recycler_layout"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,9 +54,10 @@ class FlickrPhotoActivity : AppCompatActivity() {
         recycler_view.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                if (!recyclerView.canScrollVertically(1) && page <= flickrViewmodel.totalPages) {
-                    page += 1
-                    flickrViewmodel.getFetchFlickrItems(searchQuery, page)
+                if (!recyclerView.canScrollVertically(1)
+                        && flickrViewmodel.page <= flickrViewmodel.totalPages) {
+                    flickrViewmodel.page += 1
+                    flickrViewmodel.getFetchFlickrItems(searchQuery)
                 }
             }
         })
@@ -68,13 +67,14 @@ class FlickrPhotoActivity : AppCompatActivity() {
         recycler_view.layoutManager = GridLayoutManager(this, columnNumber)
         recycler_view.adapter = flickrAdapter
 
-        flickrViewmodel.getFetchFlickrItems(searchQuery, page)
+        flickrViewmodel.getFetchFlickrItems(searchQuery)
     }
 
     private fun displayData() {
         recycler_view.layoutManager = GridLayoutManager(this, columnNumber)
-        if (savedRecyclerLayoutState != null) {
-            (recycler_view.layoutManager as GridLayoutManager).onRestoreInstanceState(savedRecyclerLayoutState)
+        if (flickrViewmodel.savedRecyclerLayoutState != null) {
+            (recycler_view.layoutManager as GridLayoutManager)
+                    .onRestoreInstanceState(flickrViewmodel.savedRecyclerLayoutState)
         }
         recycler_view.adapter = flickrAdapter
     }
@@ -86,16 +86,16 @@ class FlickrPhotoActivity : AppCompatActivity() {
         val searchView = menuItem?.actionView as SearchView
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                page = 2
+                flickrViewmodel.page = 2
                 searchQuery = query ?: ""
-                flickrViewmodel.getFetchFlickrItems(searchQuery, page)
+                flickrViewmodel.getFetchFlickrItems(searchQuery)
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                page = 2
+                flickrViewmodel.page = 2
                 searchQuery = newText ?: ""
-                flickrViewmodel.getFetchFlickrItems(searchQuery, page)
+                flickrViewmodel.getFetchFlickrItems(searchQuery)
                 return true
             }
         })
@@ -110,7 +110,7 @@ class FlickrPhotoActivity : AppCompatActivity() {
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         flickrAdapter.flickrList  = savedInstanceState.getParcelableArrayList<Flickr>(LIST_STATE) as ArrayList<Flickr>
-        savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT)
+        flickrViewmodel.savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT)
         super.onRestoreInstanceState(savedInstanceState)
     }
 
